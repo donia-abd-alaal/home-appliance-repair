@@ -1,0 +1,91 @@
+digraph G {
+  graph [rankdir=BT, bgcolor="white", nodesep=0.35, ranksep=0.7, fontname="DejaVu Sans", pad=0.2, splines=ortho, newrank=true];
+  node  [shape=plaintext, fontname="DejaVu Sans", fontsize=11];
+  edge  [fontname="DejaVu Sans", fontsize=10, color="#12304A", penwidth=1.5];
+
+  IAppliance [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="#FFF6E0">
+      <TR><TD BGCOLOR="#E9A23B"><FONT COLOR="#12304A" POINT-SIZE="9">&lt;&lt;interface&gt;&gt;</FONT><BR/><B>IAppliance</B></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ SerialNumber : string {get}<BR/>+ Model : string {get}<BR/>+ CustomerName : string {get}<BR/>+ Status : RepairStatus {get}</TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ CalculateRepairCost() : decimal<BR/>+ CanChangeStatusTo(status) : bool<BR/>+ ChangeStatus(status) : void<BR/>+ GetSummary() : string</TD></TR>
+    </TABLE>>];
+
+  Appliance [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="#EAF4F4">
+      <TR><TD BGCOLOR="#0F8B8D"><FONT COLOR="white" POINT-SIZE="9">&lt;&lt;abstract&gt;&gt;</FONT><BR/><FONT COLOR="white"><B><I>Appliance</I></B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">- _serialNumber : string {readonly}<BR/>- _receivedDate : DateTime {readonly}<BR/>- _model, _customerName : string<BR/>- _partsCost : decimal<BR/>- _laborHours : double<BR/>- _status : RepairStatus<BR/>+ {static} UnderMaintenanceCount : int<BR/>+ {static} TotalRecordedRepairCost : decimal<BR/>+ event StatusChanged</TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT"><I>+ CalculateRepairCost() : decimal {abstract}</I><BR/>+ GetSummary() : string {virtual}<BR/>+ ChangeStatus(status) : void<BR/># CalculateLaborAndParts(rate) : decimal<BR/># OnStatusChanged(old, new) : void</TD></TR>
+    </TABLE>>];
+
+  Refrigerator [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="white">
+      <TR><TD BGCOLOR="#DCE8F0"><B>Refrigerator</B></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">- _capacityLiters : int<BR/>- _hasCompressorFault : bool</TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ CalculateRepairCost() {override}<BR/>+ GetSummary() {override}</TD></TR>
+    </TABLE>>];
+  WashingMachine [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="white">
+      <TR><TD BGCOLOR="#DCE8F0"><B>WashingMachine</B></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">- _loadCapacityKg : double<BR/>- _isFrontLoader : bool<BR/>- _needsDrumReplacement : bool</TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ CalculateRepairCost() {override}<BR/>+ GetSummary() {override}</TD></TR>
+    </TABLE>>];
+  AirConditioner [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="white">
+      <TR><TD BGCOLOR="#DCE8F0"><B>AirConditioner</B></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">- _coolingCapacityBtu : int<BR/>- _needsGasRefill : bool</TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ CalculateRepairCost() {override}<BR/>+ GetSummary() {override}</TD></TR>
+    </TABLE>>];
+
+  RepairCenter [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="#F3EEFB">
+      <TR><TD BGCOLOR="#6B4FA0"><FONT COLOR="white"><B>RepairCenter</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">- _appliances : List&lt;Appliance&gt;<BR/>+ event ApplianceStatusChanged<BR/>+ event DeliveryOverdue</TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ Add(appliance) : void<BR/>+ CalculateTotalRepairCost(status?) : decimal<BR/>+ GetSummaries(status?) : List&lt;string&gt;<BR/>+ CheckOverdueDeliveries(now, days) : int</TD></TR>
+    </TABLE>>];
+
+  CustomerNotifier [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="white">
+      <TR><TD BGCOLOR="#F3EEFB"><B>CustomerNotifier</B><BR/><FONT POINT-SIZE="9">(event subscriber)</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ Subscribe(center) : void<BR/>+ Unsubscribe(center) : void</TD></TR>
+    </TABLE>>];
+
+  ApplianceValidator [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="white">
+      <TR><TD BGCOLOR="#E5EFE0"><FONT POINT-SIZE="9">&lt;&lt;static class&gt;&gt;</FONT><BR/><B>ApplianceValidator</B></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">+ IsValidSerialNumber(s) : bool<BR/>+ IsValidReceivedDate(d) : bool<BR/>+ IsNonEmptyText(t) : bool<BR/>+ IsValidCost(c) : bool</TD></TR>
+    </TABLE>>];
+
+  RepairStatus [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="white">
+      <TR><TD BGCOLOR="#E5EFE0"><FONT POINT-SIZE="9">&lt;&lt;enumeration&gt;&gt;</FONT><BR/><B>RepairStatus</B></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">Received<BR/>UnderMaintenance<BR/>Repaired<BR/>Delivered</TD></TR>
+    </TABLE>>];
+
+  Handlers [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#12304A" BGCOLOR="white">
+      <TR><TD BGCOLOR="#FBE6E6"><FONT POINT-SIZE="9">&lt;&lt;delegates&gt;&gt;</FONT><BR/><B>Event handlers</B></TD></TR>
+      <TR><TD ALIGN="LEFT" BALIGN="LEFT">ApplianceStatusChangedHandler<BR/>DeliveryOverdueHandler</TD></TR>
+    </TABLE>>];
+
+
+  Appliance -> IAppliance [arrowhead=empty, style=dashed];
+  Appliance -> ApplianceValidator [style=dashed, arrowhead=vee];
+  Appliance -> RepairStatus [style=dashed, arrowhead=vee];
+  Appliance -> Handlers [style=dashed, arrowhead=vee];
+  Refrigerator   -> Appliance [arrowhead=empty];
+  WashingMachine -> Appliance [arrowhead=empty];
+  AirConditioner -> Appliance [arrowhead=empty];
+  RepairCenter -> Appliance [arrowhead=odiamond, dir=back, arrowtail=odiamond, headlabel="0..*", labeldistance=2.5];
+  CustomerNotifier -> RepairCenter [style=dashed, arrowhead=vee, xlabel="subscribes"];
+
+  {rank=same; IAppliance; ApplianceValidator; RepairStatus;}
+  {rank=same; Appliance; Handlers;}
+  {rank=same; Refrigerator; WashingMachine; AirConditioner;}
+  {rank=same; RepairCenter; CustomerNotifier;}
+  IAppliance -> ApplianceValidator -> RepairStatus [style=invis];
+  Handlers -> Appliance [style=invis];
+  Refrigerator -> WashingMachine -> AirConditioner [style=invis];
+  RepairCenter -> CustomerNotifier [style=invis];
+  RepairCenter -> WashingMachine [style=invis];
+  CustomerNotifier -> AirConditioner [style=invis];
+}
